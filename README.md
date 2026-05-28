@@ -94,3 +94,28 @@ Este código es únicamente con fines educativos de ciberseguridad y auditoría.
 ## Autor
 
 Trabajo académico PoC - Reentrancy Attack.
+
+## PoC 3: Delegatecall Takeover
+
+### Idea en lenguaje humano
+
+`delegatecall` es como ejecutar un "manual externo" pero escribiendo dentro de tu propio contrato.
+Si cualquiera puede cambiar ese manual (implementación), un atacante puede poner uno malicioso y reescribir variables críticas como `owner`.
+
+### Contratos
+
+- `src/DelegatecallProxyVulnerable.sol`: proxy vulnerable (permite cambiar implementación sin control de acceso).
+- `src/MaliciousDelegate.sol`: implementación maliciosa que toma ownership.
+- `src/DelegatecallProxySafe.sol`: versión segura con `onlyOwner` y validaciones básicas.
+
+### Qué muestra el test
+
+- En vulnerable: el atacante cambia implementación + ejecuta `delegatecall` y se vuelve owner.
+- En seguro: el atacante no puede cambiar implementación (`Only owner`) y el takeover falla.
+
+### Comandos
+
+```bash
+forge test --match-path test/Delegatecall.t.sol -vvvv
+forge test --match-path test/DelegatecallSafe.t.sol -vvvv
+```
