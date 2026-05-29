@@ -34,7 +34,7 @@ contract DelegatecallProxySafe {
     }
 
     function executeSetValue(uint256 _value) external {
-        (bool ok, ) = implementation.delegatecall(
+        (bool ok,) = implementation.delegatecall(
             abi.encodeWithSignature("setValue(uint256)", _value)
         );
         require(ok, "delegatecall failed");

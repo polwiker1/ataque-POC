@@ -21,7 +21,7 @@ contract DelegatecallProxyVulnerable {
 
     // Vulnerable: delegatecall to user-controlled implementation
     function executeSetValue(uint256 _value) external {
-        (bool ok, ) = implementation.delegatecall(
+        (bool ok,) = implementation.delegatecall(
             abi.encodeWithSignature("setValue(uint256)", _value)
         );
         require(ok, "delegatecall failed");

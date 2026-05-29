@@ -19,7 +19,7 @@ contract SimpleBankSafe is ReentrancyGuard {
         // Effects before interactions (CEI)
         userBalance[msg.sender] = 0;
 
-        (bool success, ) = msg.sender.call{value: amount}("");
+        (bool success,) = msg.sender.call{value: amount}("");
         require(success, "ETH transfer failed");
     }
 

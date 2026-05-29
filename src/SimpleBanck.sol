@@ -13,9 +13,9 @@ contract SimpleBank {
 
     function withdraw() public {
         require(userBalance[msg.sender] >= 1 ether, "User has not enough balance");
-        require(address(this).balance > 0, "Ban is rekt");
+        require(address(this).balance > 0, "Bank is broke");
 
-        (bool success, ) = msg.sender.call{value: userBalance[msg.sender]}("");
+        (bool success,) = msg.sender.call{value: userBalance[msg.sender]}("");
         require(success, "fail");
 
         userBalance[msg.sender] = 0;

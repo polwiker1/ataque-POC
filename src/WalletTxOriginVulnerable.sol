@@ -13,7 +13,7 @@ contract WalletTxOriginVulnerable {
     // Vulnerable: auth with tx.origin instead of msg.sender
     function transferAll(address payable to) external {
         require(tx.origin == owner, "Not owner via tx.origin");
-        (bool ok, ) = to.call{value: address(this).balance}("");
+        (bool ok,) = to.call{value: address(this).balance}("");
         require(ok, "Transfer failed");
     }
 
