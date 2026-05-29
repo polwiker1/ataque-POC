@@ -2,6 +2,7 @@
 pragma solidity 0.8.24;
 
 import {Script, console2} from "forge-std/Script.sol";
+import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 
 interface IUniswapV3PoolLike {
     function token0() external view returns (address);
@@ -71,10 +72,10 @@ contract TestnetUniswapV3RiskScan is Script {
     }
 
     function _spotPriceToken1PerToken0(uint160 sqrtPriceX96) internal pure returns (uint256) {
-        // price = (sqrtPriceX96^2) / 2^192, escalado a 1e18
+        // price = (sqrtPriceX96^2) / 2^192, escalado a 1e18.
+        // Use 512-bit mulDiv to avoid overflow on deep-liquidity pools.
         uint256 sp = uint256(sqrtPriceX96);
-        uint256 num = sp * sp * 1e18;
-        uint256 den = 2 ** 192;
-        return num / den;
+        uint256 ratioX192 = Math.mulDiv(sp, sp, 1);
+        return Math.mulDiv(ratioX192, 1e18, 2 ** 192);
     }
 }

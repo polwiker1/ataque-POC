@@ -145,3 +145,40 @@ Si un lending usa precio spot de un AMM como oracle, un atacante puede pedir un 
 ```bash
 forge test --match-path test/exploits/FlashLoanOracleManipulation.t.sol -vvvv
 ```
+
+### Hallazgo de Riesgo (par anonimizado)
+
+Escaneo defensivo sobre pools V3 del par `F/////X/USDCe` (fees `500`, `3000`, `10000`) en Arbitrum:
+
+- `activeLiquidity = 0` en las 3 pools
+- `observationCardinality = 1` en las 3 pools
+- Alertas del scanner: cardinalidad baja y liquidez activa muy baja
+
+Interpretacion tecnica:
+
+1. Con liquidez activa nula, el precio spot no es una referencia robusta para decisiones de riesgo.
+2. Con cardinalidad `1`, la capacidad de construir TWAP confiable es practicamente inexistente.
+3. Un protocolo que dependa de spot price en estas condiciones aumenta de forma material su superficie de manipulacion economica.
+
+Recomendacion:
+
+- No usar spot directo como oracle para lending/collateral.
+- Exigir fuentes robustas (TWAP con ventana suficiente y/o oracle externo) mas guardas de desviacion y circuit breakers.
+
+### Contraste de Calidad de Pool (defensivo)
+
+Caso robusto observado (Arbitrum, pool activa):
+
+- `token0`: WETH
+- `token1`: ARB
+- `fee`: `500`
+- `activeLiquidity`: `933388555057108792957606`
+- `observationCardinality`: `3600`
+- `observationCardinalityNext`: `3600`
+- Sin alertas del scanner
+
+Conclusion defensiva:
+
+1. Una pool con liquidez activa alta y cardinalidad amplia ofrece una base de precio mas estable.
+2. Una pool con liquidez nula y cardinalidad minima no debe usarse como fuente de precio para decisiones sensibles.
+3. La seguridad de pricing depende de la calidad de la fuente y de guardas adicionales (TWAP robusto, desviacion maxima, circuit breakers).
