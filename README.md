@@ -119,3 +119,29 @@ Si cualquiera puede cambiar ese manual (implementación), un atacante puede pone
 forge test --match-path test/Delegatecall.t.sol -vvvv
 forge test --match-path test/DelegatecallSafe.t.sol -vvvv
 ```
+
+## PoC 4: Flash Loan + Oracle Manipulation
+
+### Idea en lenguaje humano
+
+Si un lending usa precio spot de un AMM como oracle, un atacante puede pedir un flash loan, mover el precio en el mismo bloque y pedir prestado de más contra colateral sobrevaluado.
+
+### Contratos
+
+- `src/exploits/FlashLoanOracle/MockERC20.sol`: tokens mock (colateral + stable).
+- `src/exploits/FlashLoanOracle/SimpleAMM.sol`: AMM simple con precio spot manipulable.
+- `src/exploits/FlashLoanOracle/SimpleFlashLender.sol`: proveedor de flash loan.
+- `src/exploits/FlashLoanOracle/VulnerableLending.sol`: lending vulnerable que confía en spot price.
+- `src/exploits/FlashLoanOracle/SafeLending.sol`: lending mitigado con precio de referencia + guard de desviación.
+- `src/exploits/FlashLoanOracle/FlashLoanPriceAttack.sol`: contrato atacante.
+
+### Qué muestra el test
+
+- En vulnerable: el atacante usa flash loan, manipula precio spot y extrae liquidez del lending.
+- En seguro: la operación se bloquea por desviación excesiva entre spot y oracle.
+
+### Comando
+
+```bash
+forge test --match-path test/exploits/FlashLoanOracleManipulation.t.sol -vvvv
+```
